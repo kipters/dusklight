@@ -14,10 +14,13 @@ builds (`DUSK_UWP=ON`, which sets aurora's `AURORA_UWP`):
 * SDL is built from source as a static library without its Win32 video and joystick drivers
   (`extern/aurora/cmake/patches/apply-sdl3-uwp-host.cmake`). SDL's offscreen video driver
   provides a proxy `SDL_Window` that the host keeps the same size as the `CoreWindow`.
-* Dawn renders to the `CoreWindow` directly. On Xbox, aurora uses D3D11 by default: Dawn's D3D12
-  device is removed by the console's driver (`DXGI_ERROR_DRIVER_INTERNAL_ERROR`) as soon as it
-  creates its first render pipeline. A D3D12 backend selected explicitly in the settings is
-  still honored.
+* Dawn renders to the `CoreWindow` directly, at the TV's resolution on Xbox (3840x2160 on a 4K
+  TV) with the UI scaled to match, even though the `CoreWindow` itself is always 1920x1080 there.
+* On Xbox, aurora uses D3D11 by default. The console's D3D12 runtime removes the device
+  (`DXGI_ERROR_DRIVER_INTERNAL_ERROR`) whenever `ID3D12PipelineState::GetCachedBlob` is called,
+  which Dawn does after creating every pipeline. D3D12 can be selected in the settings: aurora then
+  replaces that method in the runtime with one that fails harmlessly
+  (`extern/aurora/lib/uwp/xbox_d3d12.cpp`).
 * Xbox controllers are read through `Windows.Gaming.Input` and exposed to SDL as virtual
   gamepads, so the game sees normal SDL gamepads, rumble included.
 * Audio is rendered through WASAPI (`ActivateAudioInterfaceAsync`) from the SDL audio stream the
