@@ -237,6 +237,24 @@
       ]
     },
     {
+      "name": "uwp-x64",
+      "displayName": "UWP / Xbox (x64)",
+      "inherits": [
+        "relwithdebinfo",
+        "windows-msvc"
+      ],
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "DUSK_UWP": {
+          "type": "BOOL",
+          "value": true
+        }
+      }
+    },
+    {
       "name": "macos-default",
       "displayName": "macOS (default)",
       "generator": "Ninja",
@@ -693,6 +711,21 @@
       "configurePreset": "windows-clang-relwithdebinfo",
       "description": "Windows (Clang) release build with debug info",
       "displayName": "Windows (Clang) RelWithDebInfo"
+    },
+    {
+      "name": "uwp-x64",
+      "configurePreset": "uwp-x64",
+      "description": "UWP / Xbox (x64) package layout",
+      "displayName": "UWP / Xbox (x64)"
+    },
+    {
+      "name": "uwp-x64-package",
+      "configurePreset": "uwp-x64",
+      "description": "UWP / Xbox (x64) signed .msix package",
+      "displayName": "UWP / Xbox (x64) Package",
+      "targets": [
+        "dusklight_uwp_package"
+      ]
     },
     {
       "name": "x-linux-ci-gcc",

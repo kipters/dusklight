@@ -67,6 +67,20 @@ if (ENABLE_ASAN)
     message(STATUS "dusklight: Enabled AddressSanitizer")
 endif ()
 
+option(DUSK_UWP "Build Dusklight as a UWP app package, e.g. for Xbox Dev Mode" OFF)
+if (DUSK_UWP)
+    if (NOT WIN32 OR NOT MSVC)
+        message(FATAL_ERROR "DUSK_UWP requires Windows and an MSVC-compatible compiler")
+    endif ()
+    set(AURORA_UWP ON CACHE BOOL "" FORCE)
+    # Code mods load native DLLs and patch code at runtime, which UWP apps on Xbox can't do.
+    set(DUSK_ENABLE_CODE_MODS OFF CACHE BOOL "Enable code mods" FORCE)
+    # Discord Rich Presence talks to the desktop Discord client over a named pipe.
+    set(BOREALIS_ENABLE_DISCORD OFF CACHE BOOL "" FORCE)
+    # Crashpad needs to launch a separate handler process.
+    set(BOREALIS_ENABLE_SENTRY OFF CACHE BOOL "" FORCE)
+endif ()
+
 if (CMAKE_SYSTEM_NAME STREQUAL Linux)
   set(DAWN_USE_WAYLAND ON CACHE BOOL "Enable support for Wayland surface" FORCE)
 endif ()
@@ -502,7 +516,13 @@ if (NOT APPLE)
     )
 endif ()
 
-if (WIN32)
+if (DUSK_UWP)
+    set_target_properties(dusklight PROPERTIES WIN32_EXECUTABLE TRUE)
+    # The package manifest replaces the Win32 resources and application manifest.
+    target_link_options(dusklight PRIVATE /APPCONTAINER /MANIFEST:NO)
+    include(cmake/UWPPackage.cmake)
+    setup_uwp_package(dusklight)
+elseif (WIN32)
     set(DUSK_WINDOWS_RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows)
     set(DUSK_WINDOWS_ICON_PNG ${CMAKE_CURRENT_SOURCE_DIR}/res/icon.png)
     set(DUSK_WINDOWS_ICON_ICO ${CMAKE_CURRENT_BINARY_DIR}/dusklight.ico)

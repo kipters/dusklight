@@ -11,6 +11,7 @@
 #include "JSystem/JAudio2/JASHeapCtrl.h"
 
 #include <SDL3/SDL_init.h>
+#include <aurora/audio.h>
 #include <tracy/Tracy.hpp>
 
 #include <array>
@@ -70,8 +71,8 @@ static bool InitSDL3Output() {
     }
 
     if (PlaybackStream) {
-        SDL_PauseAudioStreamDevice(PlaybackStream);
-        SDL_DestroyAudioStream(PlaybackStream);
+        aurora_pause_playback_stream(PlaybackStream);
+        aurora_destroy_playback_stream(PlaybackStream);
     } else {
         SDL_Init(SDL_INIT_AUDIO);
     }
@@ -81,8 +82,7 @@ static bool InitSDL3Output() {
         static_cast<int>(desiredChannelCount),
         SampleRate,
     };
-    SDL_AudioStream* newStream =
-        SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, &GetNewAudio, nullptr);
+    SDL_AudioStream* newStream = aurora_open_playback_stream(&spec, &GetNewAudio, nullptr);
 
     {
         JASCriticalSection section;
@@ -107,19 +107,19 @@ void dusk::audio::Initialize() {
 
     JASPoolAllocObject_MultiThreaded<JASChannel>::newMemPool(0x48);
 
-    SDL_ResumeAudioStreamDevice(PlaybackStream);
+    aurora_resume_playback_stream(PlaybackStream);
 }
 
 void dusk::audio::Reinitialize() {
     // don't re-init unless we've initialized first (using PlaybackStream being set as proxy)
     if (PlaybackStream && InitSDL3Output()) {
-        SDL_ResumeAudioStreamDevice(PlaybackStream);
+        aurora_resume_playback_stream(PlaybackStream);
     }
 }
 
 void dusk::audio::Shutdown() {
     if (PlaybackStream) {
-        SDL_DestroyAudioStream(PlaybackStream);
+        aurora_destroy_playback_stream(PlaybackStream);
         PlaybackStream = nullptr;
     }
 
@@ -134,9 +134,9 @@ void dusk::audio::SetMasterVolume(const f32 value) {
 
 void dusk::audio::SetPaused(const bool paused) {
     if (paused) {
-        SDL_PauseAudioStreamDevice(PlaybackStream);
+        aurora_pause_playback_stream(PlaybackStream);
     } else {
-        SDL_ResumeAudioStreamDevice(PlaybackStream);
+        aurora_resume_playback_stream(PlaybackStream);
     }
 }
 

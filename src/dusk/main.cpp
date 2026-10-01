@@ -34,7 +34,7 @@ namespace {
 
 bool RestartProcess(int argc, char* argv[]) {
 #if defined(__ANDROID__) || (defined(TARGET_OS_IOS) && TARGET_OS_IOS) ||                           \
-    (defined(TARGET_OS_TV) && TARGET_OS_TV)
+    (defined(TARGET_OS_TV) && TARGET_OS_TV) || defined(AURORA_UWP)
     (void)argc;
     (void)argv;
     return false;
@@ -225,7 +225,8 @@ int main(int argc, char* argv[]) {
     return DuskMain(argc, argv);
 }
 
-#if _WIN32
+// On UWP, aurora's host provides the entry point and calls main once the CoreWindow exists.
+#if _WIN32 && !defined(AURORA_UWP)
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     return RunWindowsGuiEntryPoint();
 }
