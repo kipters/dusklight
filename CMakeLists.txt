@@ -73,8 +73,6 @@ if (DUSK_UWP)
         message(FATAL_ERROR "DUSK_UWP requires Windows and an MSVC-compatible compiler")
     endif ()
     set(AURORA_UWP ON CACHE BOOL "" FORCE)
-    # Code mods load native DLLs and patch code at runtime, which UWP apps on Xbox can't do.
-    set(DUSK_ENABLE_CODE_MODS OFF CACHE BOOL "Enable code mods" FORCE)
     # Discord Rich Presence talks to the desktop Discord client over a named pipe.
     set(BOREALIS_ENABLE_DISCORD OFF CACHE BOOL "" FORCE)
     # Crashpad needs to launch a separate handler process.
@@ -565,6 +563,10 @@ if (DUSK_ENABLE_CODE_MODS AND CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
     add_subdirectory(mods/cosmetics)
     add_subdirectory(mods/randomizer)
     add_subdirectory(mods/audio_mod)
+    if (TARGET dusklight_uwp_layout)
+        # Bundled mods are staged into the UWP package
+        add_dependencies(dusklight_uwp_layout dusklight_mods)
+    endif ()
 endif ()
 
 if (APPLE)

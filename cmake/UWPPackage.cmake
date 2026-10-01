@@ -120,6 +120,7 @@ function(setup_uwp_package target)
             "-DARGS_FILE=${_args_file}"
             "-DCRT_DIRS=${_crt_dirs}"
             "-DISO=${DUSK_UWP_EMBED_ISO}"
+            "-DBUNDLED_MODS_DIR=${CMAKE_BINARY_DIR}/bundled_mods"
             -P "${CMAKE_SOURCE_DIR}/cmake/UWPStageLayout.cmake"
             DEPENDS "${_assets_dir}/Square150x150Logo.png"
             COMMENT "Staging UWP layout in ${_layout_dir}"

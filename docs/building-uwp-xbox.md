@@ -27,10 +27,13 @@ builds (`DUSK_UWP=ON`, which sets aurora's `AURORA_UWP`):
   game already produces (see `aurora/audio.h`).
 * User data (config, saves, logs, caches) lives in the app's `LocalState` folder, under
   `TwilitRealm\Dusklight`.
+* Mods work as on Windows, code mods included (in Developer Mode, the app may load native mod
+  libraries and patch the game's code). The bundled mods ship in the package's `mods` folder;
+  mods installed from the mod browser, or uploaded with the Device Portal, go to
+  `LocalState\TwilitRealm\Dusklight\mods`.
 
 These features aren't available in the UWP build:
 
-* Code mods: UWP apps on Xbox can't load native mod DLLs or patch code at runtime.
 * Discord Rich Presence, Sentry crash reporting.
 * Picking a disc image through a file dialog. The disc image is passed on the command line
   instead; see [Providing the disc image](#providing-the-disc-image).

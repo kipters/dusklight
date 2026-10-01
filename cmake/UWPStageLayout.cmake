@@ -1,7 +1,7 @@
 # Script mode: assembles the UWP package layout (a "loose" app that can be registered or packed).
 #
 # Required: EXE_DIR, LAYOUT_DIR, RES_DIR, MANIFEST, ASSETS_DIR, ARGS_FILE, CRT_DIRS (|-separated)
-# Optional: ISO (disc image to embed as disc/game.iso)
+# Optional: ISO (disc image to embed as disc/game.iso), BUNDLED_MODS_DIR (.dusk mods to ship in mods/)
 foreach (_var EXE_DIR LAYOUT_DIR RES_DIR MANIFEST ASSETS_DIR ARGS_FILE CRT_DIRS)
   if (NOT DEFINED ${_var})
     message(FATAL_ERROR "UWPStageLayout: ${_var} is required")
@@ -24,6 +24,23 @@ file(COPY "${RES_DIR}" DESTINATION "${LAYOUT_DIR}")
 file(COPY "${ASSETS_DIR}/" DESTINATION "${LAYOUT_DIR}/Assets")
 file(COPY_FILE "${MANIFEST}" "${LAYOUT_DIR}/AppxManifest.xml" ONLY_IF_DIFFERENT)
 file(COPY_FILE "${ARGS_FILE}" "${LAYOUT_DIR}/aurora-args.txt" ONLY_IF_DIFFERENT)
+
+# Bundled mods, found by the mod loader in mods/ next to the executable
+set(_mods_dest "${LAYOUT_DIR}/mods")
+set(_bundled_mods)
+if (BUNDLED_MODS_DIR)
+  file(GLOB _bundled_mods "${BUNDLED_MODS_DIR}/*.dusk")
+endif ()
+file(GLOB _staged_mods "${_mods_dest}/*.dusk")
+foreach (_staged IN LISTS _staged_mods)
+  get_filename_component(_name "${_staged}" NAME)
+  if (NOT EXISTS "${BUNDLED_MODS_DIR}/${_name}")
+    file(REMOVE "${_staged}")
+  endif ()
+endforeach ()
+if (_bundled_mods)
+  file(COPY ${_bundled_mods} DESTINATION "${_mods_dest}")
+endif ()
 
 set(_iso_dest "${LAYOUT_DIR}/disc/game.iso")
 if (ISO)
