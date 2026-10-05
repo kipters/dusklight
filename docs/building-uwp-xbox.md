@@ -91,6 +91,19 @@ You can run the check on its own:
 cmake --build build\uwp-x64 --target dusklight_uwp_check
 ```
 
+### Initial pipeline cache
+
+Like the official PC releases, the package includes `initial_pipeline_cache.db`, which seeds the
+pipeline cache so shaders are compiled at startup instead of as they're first used. It's added to
+the package root and merged into the pipeline cache at every launch. The build doesn't generate it:
+`platforms/uwp/initial_pipeline_cache.db` is taken from the v2.0.3 Windows release, and should be
+replaced with the one from the matching release when updating. To use another file, or leave it
+out, set `DUSK_UWP_INITIAL_PIPELINE_CACHE` to its path or to an empty value:
+
+```powershell
+cmake --preset uwp-x64 -DDUSK_UWP_INITIAL_PIPELINE_CACHE=
+```
+
 ## Providing the disc image
 
 Dusklight needs a disc image of the game. You can embed it in the package, or upload it to the

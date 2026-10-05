@@ -1,7 +1,8 @@
 # Script mode: assembles the UWP package layout (a "loose" app that can be registered or packed).
 #
 # Required: EXE_DIR, LAYOUT_DIR, RES_DIR, MANIFEST, ASSETS_DIR, ARGS_FILE, CRT_DIRS (|-separated)
-# Optional: ISO (disc image to embed as disc/game.iso), BUNDLED_MODS_DIR (.dusk mods to ship in mods/)
+# Optional: ISO (disc image to embed as disc/game.iso), BUNDLED_MODS_DIR (.dusk mods to ship in mods/),
+#           PIPELINE_CACHE (initial_pipeline_cache.db seeding the pipeline cache)
 foreach (_var EXE_DIR LAYOUT_DIR RES_DIR MANIFEST ASSETS_DIR ARGS_FILE CRT_DIRS)
   if (NOT DEFINED ${_var})
     message(FATAL_ERROR "UWPStageLayout: ${_var} is required")
@@ -40,6 +41,17 @@ foreach (_staged IN LISTS _staged_mods)
 endforeach ()
 if (_bundled_mods)
   file(COPY ${_bundled_mods} DESTINATION "${_mods_dest}")
+endif ()
+
+# aurora opens the seed relative to the working directory, which is the package root
+set(_pipeline_cache_dest "${LAYOUT_DIR}/initial_pipeline_cache.db")
+if (PIPELINE_CACHE)
+  if (NOT EXISTS "${PIPELINE_CACHE}")
+    message(FATAL_ERROR "Initial pipeline cache does not exist: ${PIPELINE_CACHE}")
+  endif ()
+  file(COPY_FILE "${PIPELINE_CACHE}" "${_pipeline_cache_dest}" ONLY_IF_DIFFERENT)
+else ()
+  file(REMOVE "${_pipeline_cache_dest}")
 endif ()
 
 set(_iso_dest "${LAYOUT_DIR}/disc/game.iso")

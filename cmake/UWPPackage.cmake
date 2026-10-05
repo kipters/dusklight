@@ -9,6 +9,8 @@ include_guard(GLOBAL)
 
 set(DUSK_UWP_EMBED_ISO "" CACHE FILEPATH
     "Disc image to embed in the UWP package as disc/game.iso. The image stays local to your build; never distribute the package.")
+set(DUSK_UWP_INITIAL_PIPELINE_CACHE "${CMAKE_SOURCE_DIR}/platforms/uwp/initial_pipeline_cache.db" CACHE FILEPATH
+    "initial_pipeline_cache.db to ship in the UWP package, seeding the pipeline cache. Empty to leave it out.")
 set(DUSK_UWP_IDENTITY_NAME "TwilitRealm.Dusklight" CACHE STRING "UWP package identity name")
 set(DUSK_UWP_PUBLISHER "CN=Dusklight Developer" CACHE STRING
     "UWP package publisher; must match the subject of the signing certificate")
@@ -120,6 +122,7 @@ function(setup_uwp_package target)
             "-DARGS_FILE=${_args_file}"
             "-DCRT_DIRS=${_crt_dirs}"
             "-DISO=${DUSK_UWP_EMBED_ISO}"
+            "-DPIPELINE_CACHE=${DUSK_UWP_INITIAL_PIPELINE_CACHE}"
             "-DBUNDLED_MODS_DIR=${CMAKE_BINARY_DIR}/bundled_mods"
             -P "${CMAKE_SOURCE_DIR}/cmake/UWPStageLayout.cmake"
             DEPENDS "${_assets_dir}/Square150x150Logo.png"
